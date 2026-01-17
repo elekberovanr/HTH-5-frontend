@@ -1,14 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import API from '../../../services/api';
-import styles from './MyProducts.module.css';
-import { Link } from 'react-router-dom';
-import { FiTrash2, FiMoreVertical } from 'react-icons/fi';
-import { BiPencil } from 'react-icons/bi';
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import Delete from '../../../components/delete/Delete';
-import { useSelector } from 'react-redux';
-import LoadingSpinner from '../../../components/common/LoadingSpinner';
+import React, { useEffect, useState } from "react";
+import API from "../../../services/api";
+import styles from "./MyProducts.module.css";
+import { Link } from "react-router-dom";
+import { FiTrash2, FiMoreVertical } from "react-icons/fi";
+import { BiPencil } from "react-icons/bi";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import Delete from "../../../components/delete/Delete";
+import { useSelector } from "react-redux";
+import LoadingSpinner from "../../../components/common/LoadingSpinner";
+import { API_BASE_URL } from "../../../config/apiBase";
 
 const MyProducts = () => {
   const [products, setProducts] = useState([]);
@@ -21,10 +22,10 @@ const MyProducts = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await API.get('/products/my/products');
+        const res = await API.get("/products/my/products");
         setProducts(res.data || []);
       } catch (err) {
-        console.error('Failed to fetch products:', err);
+        console.error("Failed to fetch products:", err);
       } finally {
         setLoading(false);
       }
@@ -42,10 +43,10 @@ const MyProducts = () => {
     try {
       await API.delete(`/products/${toDeleteId}`);
       setProducts((prev) => prev.filter((p) => p._id !== toDeleteId));
-      toast.success('Product deleted successfully!', { autoClose: 2000 });
+      toast.success("Product deleted successfully!", { autoClose: 2000 });
     } catch (err) {
-      toast.error('Failed to delete the product.');
-      console.error('Delete error:', err);
+      toast.error("Failed to delete the product.");
+      console.error("Delete error:", err);
     } finally {
       setShowDialog(false);
       setToDeleteId(null);
@@ -58,49 +59,78 @@ const MyProducts = () => {
   };
 
   return (
-    <div className={`${styles.container} ${theme === 'dark' ? styles.dark : ''}`}>
+    <div className={`${styles.container} ${theme === "dark" ? styles.dark : ""}`}>
       {loading ? (
-        <div className={styles.spinnerWrapper}><LoadingSpinner /></div>
+        <div className={styles.spinnerWrapper}>
+          <LoadingSpinner />
+        </div>
       ) : (
         <div className={styles.grid}>
           {products.length === 0 ? (
             <p className={styles.empty}>No product yet...</p>
           ) : (
-            products.map((product) => (
-              <div key={product._id} className={styles.card}>
-                <div className={styles.imageWrapper}>
-                  <img
-                    src={`http://localhost:5555/uploads/${product.images?.[0] || product.image}`}
-                    alt={product.title}
-                    className={styles.image}
-                  />
-                  <button className={styles.menuBtn} onClick={() => setOpenMenu(openMenu === product._id ? null : product._id)}>
-                    <FiMoreVertical />
-                  </button>
-                  {openMenu === product._id && (
-                    <div className={styles.dropdownMenu}>
-                      <Link to={`/profile/edit/${product._id}`} className={styles.dropdownItem}>
-                        <BiPencil /> Edit
-                      </Link>
-                      <button onClick={() => askDelete(product._id)} className={styles.dropdownItem}>
-                        <FiTrash2 /> Delete
-                      </button>
-                    </div>
-                  )}
-                </div>
+            products.map((product) => {
+              const firstImg = product.images?.[0] || product.image;
+              const imgSrc = firstImg
+                ? `${API_BASE_URL}/uploads/${firstImg}`
+                : "/no-image.png";
 
-                <div className={styles.info}>
-                  <h3 className={styles.productTitle}>{product.title}</h3>
-                  <p className={styles.desc}>{product.description?.slice(0, 60)}...</p>
-                  <Link to={`/product/${product._id}`} className={styles.readMoreBtn}>
-                    Read more..
-                  </Link>
+              return (
+                <div key={product._id} className={styles.card}>
+                  <div className={styles.imageWrapper}>
+                    <img
+                      src={imgSrc}
+                      alt={product.title}
+                      className={styles.image}
+                    />
+
+                    <button
+                      className={styles.menuBtn}
+                      onClick={() =>
+                        setOpenMenu(openMenu === product._id ? null : product._id)
+                      }
+                    >
+                      <FiMoreVertical />
+                    </button>
+
+                    {openMenu === product._id && (
+                      <div className={styles.dropdownMenu}>
+                        <Link
+                          to={`/profile/edit/${product._id}`}
+                          className={styles.dropdownItem}
+                        >
+                          <BiPencil /> Edit
+                        </Link>
+
+                        <button
+                          onClick={() => askDelete(product._id)}
+                          className={styles.dropdownItem}
+                        >
+                          <FiTrash2 /> Delete
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className={styles.info}>
+                    <h3 className={styles.productTitle}>{product.title}</h3>
+                    <p className={styles.desc}>
+                      {product.description?.slice(0, 60)}...
+                    </p>
+                    <Link
+                      to={`/product/${product._id}`}
+                      className={styles.readMoreBtn}
+                    >
+                      Read more..
+                    </Link>
+                  </div>
                 </div>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
       )}
+
       <Delete isOpen={showDialog} onConfirm={confirmDelete} onCancel={cancelDelete} />
       <ToastContainer position="top-center" />
     </div>

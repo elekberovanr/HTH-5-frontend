@@ -1,36 +1,55 @@
-import React, { useEffect, useRef, useState } from 'react';
-import styles from './SupportChat.module.css';
-import { FaImage, FaPaperPlane, FaTimes } from 'react-icons/fa';
-import API from '../../../../services/api';
-import { io } from 'socket.io-client';
-import { useSelector, useDispatch } from 'react-redux';
-import { incrementUnread, setSelectedChat } from '../../../../redux/reducers/chatSlice';
-
-const socket = io('http://localhost:5555/support');
+import React, { useEffect, useRef, useState } from "react";
+import styles from "./SupportChat.module.css";
+import { FaImage, FaPaperPlane, FaTimes } from "react-icons/fa";
+import API from "../../../../services/api";
+import { io } from "socket.io-client";
+import { useSelector, useDispatch } from "react-redux";
+import { incrementUnread, setSelectedChat } from "../../../../redux/reducers/chatSlice";
+import { API_BASE_URL } from "../../../../config/apiBase";
 
 const SupportChat = ({ selectedUser, onBack }) => {
-  const admin = useSelector(state => state.user.user);
+  const admin = useSelector((state) => state.user.user);
   const dispatch = useDispatch();
+
+  const [socket, setSocket] = useState(null);
   const [messages, setMessages] = useState([]);
-  const [msg, setMsg] = useState('');
+  const [msg, setMsg] = useState("");
   const [file, setFile] = useState(null);
   const [isClosed, setIsClosed] = useState(false);
+
   const bottomRef = useRef();
 
+  // ✅ socket connect (support namespace)
   useEffect(() => {
-    if (!selectedUser?._id) return;
+    const s = io(`${API_BASE_URL}/support`, {
+      withCredentials: true,
+      transports: ["websocket"],
+    });
+
+    setSocket(s);
+
+    return () => {
+      s.disconnect();
+    };
+  }, []);
+
+  // ✅ fetch + socket events
+  useEffect(() => {
+    if (!selectedUser?._id || !admin?._id || !socket) return;
 
     fetchMessages();
     dispatch(setSelectedChat({ _id: selectedUser._id }));
-    socket.emit('registerSupportAdmin', admin._id);
+    socket.emit("registerSupportAdmin", admin._id);
 
     const handleNewMessage = (message) => {
       const match =
-        (message.sender === selectedUser._id || message.sender?._id === selectedUser._id) ||
-        (message.receiver === selectedUser._id || message.receiver?._id === selectedUser._id);
+        message.sender === selectedUser._id ||
+        message.sender?._id === selectedUser._id ||
+        message.receiver === selectedUser._id ||
+        message.receiver?._id === selectedUser._id;
 
       if (match) {
-        setMessages(prev => [...prev, message]);
+        setMessages((prev) => [...prev, message]);
       } else {
         const otherId = message.sender?._id || message.sender;
         dispatch(incrementUnread({ chatId: otherId }));
@@ -41,15 +60,16 @@ const SupportChat = ({ selectedUser, onBack }) => {
       setIsClosed(closed);
     };
 
-    socket.on('newMessage', handleNewMessage);
-    socket.on('ticketStatusChanged', handleTicketStatus);
+    socket.on("newMessage", handleNewMessage);
+    socket.on("ticketStatusChanged", handleTicketStatus);
 
     return () => {
-      socket.off('newMessage', handleNewMessage);
-      socket.off('ticketStatusChanged', handleTicketStatus);
+      socket.off("newMessage", handleNewMessage);
+      socket.off("ticketStatusChanged", handleTicketStatus);
     };
-  }, [selectedUser]);
+  }, [selectedUser, admin, socket]);
 
+  // ✅ mark as read
   useEffect(() => {
     if (!selectedUser?._id || !admin?._id) return;
 
@@ -59,7 +79,7 @@ const SupportChat = ({ selectedUser, onBack }) => {
           chatWith: selectedUser._id,
         });
       } catch (err) {
-        console.error('Failed to mark messages as read:', err);
+        console.error("Failed to mark messages as read:", err);
       }
     };
 
@@ -72,7 +92,7 @@ const SupportChat = ({ selectedUser, onBack }) => {
       setMessages(res.data.messages || []);
       setIsClosed(res.data.isClosed ?? false);
     } catch (err) {
-      console.error('Failed to fetch messages:', err);
+      console.error("Failed to fetch messages:", err);
     }
   };
 
@@ -81,97 +101,123 @@ const SupportChat = ({ selectedUser, onBack }) => {
       const res = await API.put(`/support/toggle-status/${selectedUser._id}`);
       setIsClosed(res.data.closed);
     } catch (err) {
-      console.error('Failed to toggle ticket status:', err);
+      console.error("Failed to toggle ticket status:", err);
     }
   };
 
   const handleSend = async () => {
     if (!msg && !file) return;
+
     const formData = new FormData();
-    formData.append('content', msg);
-    if (file) formData.append('image', file);
+    formData.append("content", msg);
+    if (file) formData.append("image", file);
 
     try {
       await API.post(`/support/admin/${selectedUser._id}`, formData);
-      setMsg('');
+      setMsg("");
       setFile(null);
     } catch (err) {
-      console.error('Failed to send message:', err);
+      console.error("Failed to send message:", err);
     }
   };
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  const selectedUserImg = selectedUser?.profileImage
+    ? `${API_BASE_URL}/uploads/${selectedUser.profileImage}`
+    : "/default-avatar.png";
 
   return (
     <div className={styles.chatContainer}>
       <div className={styles.header}>
-        <button className={styles.backButton} onClick={onBack}>←</button>
+        <button className={styles.backButton} onClick={onBack}>
+          ←
+        </button>
+
         <img
-          src={
-            selectedUser?.profileImage
-              ? `http://localhost:5555/uploads/${selectedUser.profileImage}`
-              : '/default-avatar.png'
-          }
+          src={selectedUserImg}
           alt="user"
           className={styles.profileImage}
         />
+
         <div>
-          <div className={styles.username}>{selectedUser.name}</div>
-          <div className={styles.email}>{selectedUser.email}</div>
+          <div className={styles.username}>{selectedUser?.name}</div>
+          <div className={styles.email}>{selectedUser?.email}</div>
         </div>
-  
       </div>
 
       <div className={styles.messageArea}>
         {messages.map((m, i) => {
-          const isAdmin = m.sender === admin._id || m.sender?._id === admin._id;
+          const isAdmin = m.sender === admin?._id || m.sender?._id === admin?._id;
           const sender = m.sender || {};
           const senderImage = sender.profileImage
-            ? `http://localhost:5555/uploads/${sender.profileImage}`
-            : '/default-avatar.png';
+            ? `${API_BASE_URL}/uploads/${sender.profileImage}`
+            : "/default-avatar.png";
 
           return (
-            <div key={i} className={`${styles.messageRow} ${isAdmin ? styles.user : styles.admin}`}>
-              {!isAdmin && <img src={senderImage} alt="avatar" className={styles.avatar} />}
+            <div
+              key={i}
+              className={`${styles.messageRow} ${isAdmin ? styles.user : styles.admin}`}
+            >
+              {!isAdmin && (
+                <img src={senderImage} alt="avatar" className={styles.avatar} />
+              )}
+
               <div className={styles.bubbleWrapper}>
                 {Array.isArray(m.image) && m.image.length > 0 && (
                   <div className={styles.imageGroup}>
                     {m.image.map((img, index) => (
                       <img
                         key={index}
-                        src={`http://localhost:5555/uploads/${img}`}
+                        src={`${API_BASE_URL}/uploads/${img}`}
                         alt="media"
                         className={styles.messageImage}
                       />
                     ))}
                   </div>
                 )}
+
                 {m.content && (
                   <div className={styles.bubble}>
                     {m.content}
                     <span className={styles.time}>
-                      {new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      {new Date(m.createdAt).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
                     </span>
                   </div>
                 )}
+
                 {!m.content && m.image?.length > 0 && (
                   <span className={styles.time}>
-                    {new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    {new Date(m.createdAt).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
                   </span>
                 )}
               </div>
-              {isAdmin && <img src={senderImage} alt="avatar" className={styles.avatar} />}
+
+              {isAdmin && (
+                <img src={senderImage} alt="avatar" className={styles.avatar} />
+              )}
             </div>
           );
         })}
-        <div ref={bottomRef}></div>
+
+        <div ref={bottomRef} />
       </div>
 
       {file && (
         <div className={styles.previewWrapper}>
-          <img src={URL.createObjectURL(file)} alt="preview" className={styles.previewImage} />
+          <img
+            src={URL.createObjectURL(file)}
+            alt="preview"
+            className={styles.previewImage}
+          />
           <button onClick={() => setFile(null)} className={styles.removeImage}>
             <FaTimes />
           </button>
@@ -189,10 +235,17 @@ const SupportChat = ({ selectedUser, onBack }) => {
             placeholder="Type a message..."
             className={styles.inputField}
           />
+
           <label className={styles.uploadIcon}>
             <FaImage />
-            <input type="file" hidden accept="image/*" onChange={(e) => setFile(e.target.files[0])} />
+            <input
+              type="file"
+              hidden
+              accept="image/*"
+              onChange={(e) => setFile(e.target.files?.[0] || null)}
+            />
           </label>
+
           <button onClick={handleSend} className={styles.sendButton}>
             <FaPaperPlane />
           </button>

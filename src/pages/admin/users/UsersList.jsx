@@ -1,23 +1,24 @@
-import React, { useEffect, useState } from 'react';
-import API from '../../../services/api';
-import styles from './UsersList.module.css';
-import { FiEdit3, FiTrash2, FiSave, FiSearch } from 'react-icons/fi';
+import React, { useEffect, useState } from "react";
+import API from "../../../services/api";
+import styles from "./UsersList.module.css";
+import { FiEdit3, FiTrash2, FiSave, FiSearch } from "react-icons/fi";
+import { API_BASE_URL } from "../../../config/apiBase";
 
 const UsersList = () => {
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [editUserId, setEditUserId] = useState(null);
-  const [editData, setEditData] = useState({ username: '', email: '', password: '' });
+  const [editData, setEditData] = useState({ username: "", email: "", password: "" });
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const res = await API.get('/users');
-        setUsers(res.data);
-        setFilteredUsers(res.data);
+        const res = await API.get("/users");
+        setUsers(res.data || []);
+        setFilteredUsers(res.data || []);
       } catch (err) {
-        console.error('Failed to fetch users');
+        console.error("Failed to fetch users", err);
       }
     };
     fetchUsers();
@@ -25,7 +26,7 @@ const UsersList = () => {
 
   useEffect(() => {
     const term = searchTerm.toLowerCase();
-    const filtered = users.filter((user) =>
+    const filtered = (users || []).filter((user) =>
       user.email?.toLowerCase().includes(term)
     );
     setFilteredUsers(filtered);
@@ -34,9 +35,9 @@ const UsersList = () => {
   const handleEdit = (user) => {
     setEditUserId(user._id);
     setEditData({
-      username: user.username || '',
-      email: user.email || '',
-      password: ''
+      username: user.username || "",
+      email: user.email || "",
+      password: "",
     });
   };
 
@@ -50,26 +51,29 @@ const UsersList = () => {
       const res = await API.put(`/admin/update-user/${editUserId}`, updated);
       const data = res.data;
 
-      setUsers(prev =>
-        prev.map(user => user._id === editUserId ? { ...user, ...data } : user)
+      setUsers((prev) =>
+        prev.map((user) => (user._id === editUserId ? { ...user, ...data } : user))
       );
 
       setEditUserId(null);
-      setEditData({ username: '', email: '', password: '' });
+      setEditData({ username: "", email: "", password: "" });
     } catch (err) {
-      alert('Save failed');
+      alert("Save failed");
     }
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this user?')) return;
+    if (!window.confirm("Are you sure you want to delete this user?")) return;
     try {
       await API.delete(`/admin/delete-user/${id}`);
-      setUsers(users.filter(user => user._id !== id));
+      setUsers(users.filter((user) => user._id !== id));
     } catch {
-      alert('Delete failed');
+      alert("Delete failed");
     }
   };
+
+  const profileImgSrc = (profileImage) =>
+    profileImage ? `${API_BASE_URL}/uploads/${profileImage}` : null;
 
   return (
     <div className={styles.container}>
@@ -94,6 +98,7 @@ const UsersList = () => {
           <div>Password</div>
           <div>Actions</div>
         </div>
+
         {filteredUsers.map((user) => (
           <div className={styles.row} key={user._id}>
             {editUserId === user._id ? (
@@ -101,12 +106,13 @@ const UsersList = () => {
                 <div>
                   {user.profileImage && (
                     <img
-                      src={`http://localhost:5555/uploads/${user.profileImage}`}
+                      src={profileImgSrc(user.profileImage)}
                       alt="profile"
                       className={styles.avatar}
                     />
                   )}
                 </div>
+
                 <input
                   type="text"
                   value={editData.username}
@@ -123,8 +129,11 @@ const UsersList = () => {
                   value={editData.password}
                   onChange={(e) => setEditData({ ...editData, password: e.target.value })}
                 />
+
                 <div className={styles.actions}>
-                  <button onClick={handleSave}><FiSave /></button>
+                  <button onClick={handleSave}>
+                    <FiSave />
+                  </button>
                 </div>
               </>
             ) : (
@@ -132,18 +141,24 @@ const UsersList = () => {
                 <div>
                   {user.profileImage && (
                     <img
-                      src={`http://localhost:5555/uploads/${user.profileImage}`}
+                      src={profileImgSrc(user.profileImage)}
                       alt="profile"
                       className={styles.avatar}
                     />
                   )}
                 </div>
+
                 <div>{user.username}</div>
                 <div>{user.email}</div>
                 <div>••••••</div>
+
                 <div className={styles.actions}>
-                  <button onClick={() => handleEdit(user)}><FiEdit3 /></button>
-                  <button onClick={() => handleDelete(user._id)}><FiTrash2 /></button>
+                  <button onClick={() => handleEdit(user)}>
+                    <FiEdit3 />
+                  </button>
+                  <button onClick={() => handleDelete(user._id)}>
+                    <FiTrash2 />
+                  </button>
                 </div>
               </>
             )}
