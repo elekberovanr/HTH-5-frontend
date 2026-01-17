@@ -121,7 +121,7 @@ const Register = () => {
 
           <div className={styles.captchaWrapper}>
            <ReCAPTCHA
-  sitekey="6Lf0yU0sAAAAACWM1eQjjtdMHMr5eKWy9oZibILj"
+  sitekey="6Ld50E0sAAAAAPOOkT2ERvgmWOrfrlHe7DmmXqyM"
   onChange={handleCaptcha}
 />
 
