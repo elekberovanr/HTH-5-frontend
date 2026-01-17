@@ -1,12 +1,9 @@
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import styles from "./Register.module.css";
 import { FiUser, FiMail, FiLock, FiCalendar, FiMapPin } from "react-icons/fi";
 import { BsGenderAmbiguous } from "react-icons/bs";
 import API from "../../services/api";
 import { useNavigate } from "react-router";
-import ReCAPTCHA from "react-google-recaptcha";
-
-const SITE_KEY = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
 
 const Register = () => {
   const [form, setForm] = useState({
@@ -20,14 +17,8 @@ const Register = () => {
     profileImage: null,
   });
 
-  const [recaptchaToken, setRecaptchaToken] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
-
-  const recaptchaRef = useRef(null);
-
-  // Səhifə açılan kimi KEY-i görmək üçün (debug)
-  console.log("RECAPTCHA SITE KEY:", SITE_KEY);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -38,36 +29,20 @@ const Register = () => {
     setForm((prev) => ({ ...prev, profileImage: e.target.files?.[0] || null }));
   };
 
-  const handleCaptcha = (token) => {
-    setRecaptchaToken(token || "");
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
-    // 1) Site key yoxdursa, captcha işləməyəcək
-    if (!SITE_KEY) {
-      return setError(
-        "Captcha site key tapılmadı. Lokal üçün .env faylına, deploy üçün Vercel env-ə VITE_RECAPTCHA_SITE_KEY əlavə et."
-      );
-    }
-
-    // 2) Sadə validasiyalar
     if (form.password.length < 8) return setError("Password must be at least 8 characters.");
     if (form.password !== form.confirmPassword) return setError("Passwords do not match.");
-    if (!recaptchaToken) return setError("Please complete the captcha.");
 
-    // 3) FormData
+    // FormData (şəkil göndərə bilərsən deyə saxladım)
     const formData = new FormData();
     Object.entries(form).forEach(([key, val]) => {
       if (key !== "confirmPassword" && val !== null && val !== "") {
         formData.append(key, val);
       }
     });
-
-    // backend bunu gözləyir
-    formData.append("recaptchaToken", recaptchaToken);
 
     try {
       await API.post("/auth/register", formData);
@@ -76,10 +51,6 @@ const Register = () => {
     } catch (err) {
       console.error("Error:", err.response?.data || err.message);
       setError(err.response?.data?.error || "❌ Registration failed");
-
-      // token bir dəfəlik ola bilər → reset
-      setRecaptchaToken("");
-      recaptchaRef.current?.reset();
     }
   };
 
@@ -178,14 +149,6 @@ const Register = () => {
             <input type="file" name="profileImage" onChange={handleFile} />
           </div>
           */}
-
-          <div className={styles.captchaWrapper}>
-            <ReCAPTCHA
-              ref={recaptchaRef}
-              sitekey={SITE_KEY}   // ✅ burdan oxuyur
-              onChange={handleCaptcha}
-            />
-          </div>
 
           <button type="submit" className={styles.button}>
             Register
