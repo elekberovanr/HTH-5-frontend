@@ -1,24 +1,36 @@
 import React, { useState } from "react";
 import styles from "./ForgotPassword.module.css";
 import { useNavigate } from "react-router";
-import API from "../../../services/api"; // path əgər fərqlidirsə düzəlt
-// Məs: ../../../services/api ola bilər, səndə bu fayl haradadırsa ona uyğun et
+import API from "../../../services/api";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSendCode = async (e) => {
     e.preventDefault();
+    console.log("SUBMIT CLICKED. email =", email);
+
     setError("");
+    setLoading(true);
 
     try {
-      await API.post("/auth/forgot-password", { email });
+      console.log("BASE URL:", API.defaults.baseURL);
+
+      const res = await API.post("/auth/forgot-password", { email });
+
+      console.log("RESPONSE:", res.data);
       localStorage.setItem("resetEmail", email);
       navigate("/reset-password");
     } catch (err) {
-      setError(err.response?.data?.error || "Kod göndərilə bilmədi");
+      console.log("ERROR FULL:", err);
+      console.log("ERROR RESPONSE:", err.response?.data);
+
+      setError(err.response?.data?.error || err.message || "Kod göndərilə bilmədi");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -37,8 +49,8 @@ const ForgotPassword = () => {
             className={styles.input}
           />
 
-          <button type="submit" className={styles.button}>
-            Send code
+          <button type="submit" className={styles.button} disabled={loading}>
+            {loading ? "Sending..." : "Send code"}
           </button>
 
           {error && <p className={styles.error}>{error}</p>}
