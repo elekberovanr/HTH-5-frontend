@@ -120,7 +120,11 @@ const Register = () => {
           {/* <input type="file" name="profileImage" onChange={handleFile} /> */}
 
           <div className={styles.captchaWrapper}>
-            <ReCAPTCHA sitekey={SITE_KEY} onChange={handleCaptcha} />
+           <ReCAPTCHA
+  sitekey="6Lf0yU0sAAAAACWM1eQjjtdMHMr5eKWy9oZibILj"
+  onChange={handleCaptcha}
+/>
+
           </div>
 
           <button type="submit" className={styles.button}>Register</button>
