@@ -100,7 +100,7 @@ const ProductDetail = () => {
       </div>
 
       <div className={styles.infoSection}>
-        <Link to={`/user/${product.user._id}`}>
+        <Link to={`/user/${product.user}`}>
           <div className={styles.owner}>
             {product.user?.profileImage ? (
               <img
