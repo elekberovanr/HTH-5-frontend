@@ -1,25 +1,27 @@
-import React, { useState } from 'react';
-import styles from './Register.module.css';
-import { FiUser, FiMail, FiLock, FiCalendar, FiMapPin, FiImage } from 'react-icons/fi';
-import { BsGenderAmbiguous } from 'react-icons/bs';
-import API from '../../services/api';
-import { useNavigate } from 'react-router';
-import ReCAPTCHA from 'react-google-recaptcha';
+import React, { useState } from "react";
+import styles from "./Register.module.css";
+import { FiUser, FiMail, FiLock, FiCalendar, FiMapPin } from "react-icons/fi";
+import { BsGenderAmbiguous } from "react-icons/bs";
+import API from "../../services/api";
+import { useNavigate } from "react-router";
+import ReCAPTCHA from "react-google-recaptcha";
+
+const SITE_KEY = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
 
 const Register = () => {
   const [form, setForm] = useState({
-    name: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-    birthday: '',
-    gender: '',
-    city: '',
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    birthday: "",
+    gender: "",
+    city: "",
     profileImage: null,
   });
 
-  const [captchaToken, setCaptchaToken] = useState('');
-  const [error, setError] = useState('');
+  const [recaptchaToken, setRecaptchaToken] = useState("");
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -28,45 +30,42 @@ const Register = () => {
   };
 
   const handleFile = (e) => {
-    setForm((prev) => ({ ...prev, profileImage: e.target.files[0] }));
+    setForm((prev) => ({ ...prev, profileImage: e.target.files?.[0] || null }));
   };
 
   const handleCaptcha = (token) => {
-    setCaptchaToken(token);
+    setRecaptchaToken(token || "");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
 
-    if (form.password.length < 8) {
-      return setError('Password must be at least 8 characters.');
-    }
+    if (!SITE_KEY) return setError("Captcha site key tapılmadı (VITE_RECAPTCHA_SITE_KEY).");
 
-    if (form.password !== form.confirmPassword) {
-      return setError('Passwords do not match.');
-    }
-
-    if (!captchaToken) {
-      return setError('Please complete the captcha.');
-    }
+    if (form.password.length < 8) return setError("Password must be at least 8 characters.");
+    if (form.password !== form.confirmPassword) return setError("Passwords do not match.");
+    if (!recaptchaToken) return setError("Please complete the captcha.");
 
     const formData = new FormData();
     for (const key in form) {
-      if (key !== 'confirmPassword' && form[key]) {
+      if (key !== "confirmPassword" && form[key]) {
         formData.append(key, form[key]);
       }
     }
 
-    formData.append('captcha', captchaToken);
+    // ✅ backend bu adı gözləməlidir
+    formData.append("recaptchaToken", recaptchaToken);
 
     try {
-      await API.post('/auth/register', formData);
-      alert('✅ Registration successful');
-      navigate('/login');
+      await API.post("/auth/register", formData);
+      alert("✅ Registration successful");
+      navigate("/login");
     } catch (err) {
-      console.error('Error:', err.response?.data || err.message);
-      setError('❌ Registration failed');
+      console.error("Error:", err.response?.data || err.message);
+      setError(err.response?.data?.error || "❌ Registration failed");
+      // captcha token bir dəfəlik ola bilər, reset üçün:
+      setRecaptchaToken("");
     }
   };
 
@@ -117,11 +116,11 @@ const Register = () => {
             <input type="text" name="city" placeholder="City" onChange={handleChange} required />
           </div>
 
+          {/* Əgər şəkil inputun varsa */}
+          {/* <input type="file" name="profileImage" onChange={handleFile} /> */}
+
           <div className={styles.captchaWrapper}>
-            <ReCAPTCHA
-              sitekey="6Lc1CXcrAAAAAHKmlnOxJEW-MOU2rF5HiJqgcqjV"
-              onChange={handleCaptcha}
-            />
+            <ReCAPTCHA sitekey={SITE_KEY} onChange={handleCaptcha} />
           </div>
 
           <button type="submit" className={styles.button}>Register</button>
