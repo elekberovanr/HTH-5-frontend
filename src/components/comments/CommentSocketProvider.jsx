@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import { API_BASE_URL } from "../../config/apiBase"; 
-// ⚠️ path əgər fərqlidirsə (../../config/apiBase) uyğunlaşdır
 
 const CommentSocketContext = createContext(null);
 

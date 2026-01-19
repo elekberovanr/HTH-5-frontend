@@ -4,8 +4,9 @@
   overflow: hidden;
   font-family: 'Poppins', sans-serif;
   background-color: var(--card-bg);
-  border-radius: 20px;
-  margin: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .carousel {
@@ -14,7 +15,6 @@
   height: 100%;
   top: 0;
   left: 0;
-  border-radius: 20px;
   overflow: hidden;
 }
 
@@ -39,9 +39,7 @@
   position: relative;
   z-index: 2;
   background-color: rgba(0, 0, 0, 0.55);
-  max-width: 600px;
-  margin: 0 auto;
-  top: 20%;
+  width: min(600px, calc(100% - 24px));
   padding: 30px;
   border-radius: 16px;
   text-align: center;
@@ -52,6 +50,7 @@
 .title {
   font-size: 2.4rem;
   font-weight: 700;
+  margin: 0;
 }
 
 .subtitle {
@@ -100,21 +99,22 @@
 
 @media (max-width: 768px) {
   .hero {
-    height: auto;
-    margin: 12px;
-    border-radius: 16px;
+    height: 50vh;
   }
 
+
   .overlay {
-    padding: 20px;
-    margin-top: 60px;
+    padding: 16px;
+    border-radius: 14px;
+    width: calc(100% - 24px);
   }
 
   .title {
-    font-size: 1.8rem;
+    font-size: 1.5rem;
   }
 
   .subtitle {
-    font-size: 0.95rem;
+    font-size: 0.9rem;
+    margin-top: 8px;
   }
 }

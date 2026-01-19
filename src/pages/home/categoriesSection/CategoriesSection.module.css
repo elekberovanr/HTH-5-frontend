@@ -1,8 +1,8 @@
 .categoriesSection {
-  padding: 2rem 1rem;
+  padding:  0 2rem 2rem 2rem;
   background-color: var(--card-bg);
   border-radius: 16px;
-  margin: 2rem auto;
+  margin: 0 2rem 2rem 2rem auto;
   max-width: 1200px;
   text-align: center;
 }

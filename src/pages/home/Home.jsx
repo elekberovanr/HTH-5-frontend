@@ -24,9 +24,6 @@ const Home = () => {
         <CategoriesSection onCategorySelect={(categoryName) => setSearchTerm(categoryName)} />
       </div>
       <div className={styles.sectionSpacing}>
-        <UsersSection />
-      </div>
-      <div className={styles.sectionSpacing}>
         <Donate/>
       </div>
       <div className={styles.sectionSpacing}>

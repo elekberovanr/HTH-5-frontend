@@ -1,31 +1,31 @@
 :root {
-    --card-bg: #ffffff;
-    --text-color: #1b1b1b;
-    --text-muted: #666666;
-    --primary-color: #1b4b43;
-    --button-bg: #1b4b43;
-    --button-bg-hover: #163f38;
-    --border-color: #dddddd;
-    --avatar-border: #ffffff;
+  --card-bg: #ffffff;
+  --text-color: #1b1b1b;
+  --text-muted: #666666;
+  --primary-color: #1b4b43;
+  --button-bg: #1b4b43;
+  --button-bg-hover: #163f38;
+  --border-color: #dddddd;
+  --avatar-border: #ffffff;
 }
 
 [data-theme='dark'] {
-    --card-bg: #1f2b29;
-    --text-color: #f2f2f2;
-    --text-muted: #aaaaaa;
-    --primary-color: #8de0d4;
-    --button-bg: #295f58;
-    --button-bg-hover: #1e4a43;
-    --border-color: #334543;
-    --avatar-border: #2c4f4c;
+  --card-bg: #1f2b29;
+  --text-color: #f2f2f2;
+  --text-muted: #aaaaaa;
+  --primary-color: #8de0d4;
+  --button-bg: #295f58;
+  --button-bg-hover: #1e4a43;
+  --border-color: #334543;
+  --avatar-border: #2c4f4c;
 }
 
-.all{
+.all {
   width: 100%;
   background-color: var(--card-bg);
   display: flex;
   align-items: center;
- justify-content: center;
+  justify-content: center;
 }
 
 .gridContainer {
@@ -34,7 +34,7 @@
   justify-content: center;
   gap: 16px;
   padding: 1rem;
-  width: 80%;
+  width: 100%;
   box-sizing: border-box;
   background-color: var(--card-bg);
 }
@@ -47,14 +47,13 @@
   box-sizing: border-box;
 }
 
-
 @media screen and (max-width: 768px) {
   .gridContainer > * {
-    flex: 0 1 calc(100% - 1rem);
+    flex: 0 1 calc(50% - 1rem);
   }
 }
 
-@media screen and (max-width: 400px) {
+@media screen and (max-width: 360px) {
   .gridContainer > * {
     flex: 0 1 100%;
   }
