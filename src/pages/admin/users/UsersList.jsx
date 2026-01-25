@@ -3,13 +3,18 @@ import API from "../../../services/api";
 import styles from "./UsersList.module.css";
 import { FiEdit3, FiTrash2, FiSave, FiSearch } from "react-icons/fi";
 import { API_BASE_URL } from "../../../config/apiBase";
+import { imgSrc } from "../../../utils/imgSrc";
 
 const UsersList = () => {
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [editUserId, setEditUserId] = useState(null);
-  const [editData, setEditData] = useState({ username: "", email: "", password: "" });
+  const [editData, setEditData] = useState({
+    username: "",
+    email: "",
+    password: "",
+  });
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -46,13 +51,16 @@ const UsersList = () => {
       const updated = {};
       if (editData.username.trim()) updated.username = editData.username.trim();
       if (editData.email.trim()) updated.email = editData.email.trim();
-      if (editData.password.trim()) updated.password = editData.password.trim();
+      if (editData.password.trim())
+        updated.password = editData.password.trim();
 
       const res = await API.put(`/admin/update-user/${editUserId}`, updated);
       const data = res.data;
 
       setUsers((prev) =>
-        prev.map((user) => (user._id === editUserId ? { ...user, ...data } : user))
+        prev.map((user) =>
+          user._id === editUserId ? { ...user, ...data } : user
+        )
       );
 
       setEditUserId(null);
@@ -73,7 +81,7 @@ const UsersList = () => {
   };
 
   const profileImgSrc = (profileImage) =>
-    profileImage ? `${API_BASE_URL}/uploads/${profileImage}` : null;
+    profileImage ? imgSrc(profileImage, API_BASE_URL) : null;
 
   return (
     <div className={styles.container}>
@@ -116,18 +124,24 @@ const UsersList = () => {
                 <input
                   type="text"
                   value={editData.username}
-                  onChange={(e) => setEditData({ ...editData, username: e.target.value })}
+                  onChange={(e) =>
+                    setEditData({ ...editData, username: e.target.value })
+                  }
                 />
                 <input
                   type="email"
                   value={editData.email}
-                  onChange={(e) => setEditData({ ...editData, email: e.target.value })}
+                  onChange={(e) =>
+                    setEditData({ ...editData, email: e.target.value })
+                  }
                 />
                 <input
                   type="password"
                   placeholder="New password"
                   value={editData.password}
-                  onChange={(e) => setEditData({ ...editData, password: e.target.value })}
+                  onChange={(e) =>
+                    setEditData({ ...editData, password: e.target.value })
+                  }
                 />
 
                 <div className={styles.actions}>

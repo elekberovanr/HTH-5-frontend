@@ -19,6 +19,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../redux/reducers/userSlice";
 import Donations from "../donations/Donations";
 import { API_BASE_URL } from "../../config/apiBase";
+import { imgSrc } from "../../utils/imgSrc";
 
 const Profile = () => {
   const [profile, setProfile] = useState(null);
@@ -70,7 +71,7 @@ const Profile = () => {
     if (!img) {
       return type === "banner" ? "/default-banner.jpg" : "/assets/default-profile.jpg";
     }
-    return `${API_BASE_URL}/uploads/${img}`;
+    return imgSrc(img, API_BASE_URL);
   };
 
   return (

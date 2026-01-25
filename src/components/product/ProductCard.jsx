@@ -5,6 +5,7 @@ import { useSelector } from "react-redux";
 import { addFavorite, removeFavorite, getFavorites } from "../../services/api";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
 import { API_BASE_URL } from "../../config/apiBase";
+import { imgSrc } from "../../utils/imgSrc";
 
 const ProductCard = ({ product }) => {
   const user = useSelector((state) => state.user.user);
@@ -15,9 +16,7 @@ const ProductCard = ({ product }) => {
       if (!user || !product?._id) return;
       try {
         const favorites = await getFavorites();
-        const exists = favorites.some(
-          (f) => f.product?._id === product._id
-        );
+        const exists = favorites.some((f) => f.product?._id === product._id);
         setIsFavorited(exists);
       } catch (err) {
         console.error("Error checking favorites:", err.message);
@@ -47,11 +46,11 @@ const ProductCard = ({ product }) => {
   const userName = userData?.name || "User";
 
   const profileImg = userData?.profileImage
-    ? `${API_BASE_URL}/uploads/${userData.profileImage}`
+    ? imgSrc(userData.profileImage, API_BASE_URL)
     : "/default-user.png";
 
   const productImg = product.images?.[0]
-    ? `${API_BASE_URL}/uploads/${product.images[0]}`
+    ? imgSrc(product.images[0], API_BASE_URL)
     : "/no-image.png";
 
   return (
@@ -63,10 +62,7 @@ const ProductCard = ({ product }) => {
           className={styles.productImage}
         />
 
-        <button
-          className={styles.favoriteBtn}
-          onClick={handleFavoriteClick}
-        >
+        <button className={styles.favoriteBtn} onClick={handleFavoriteClick}>
           {isFavorited ? (
             <FaHeart className={styles.heartIcon} />
           ) : (
@@ -78,11 +74,7 @@ const ProductCard = ({ product }) => {
       <div className={styles.cardContent}>
         {userData && (
           <Link to={`/user/${userData._id}`} className={styles.userInfo}>
-            <img
-              src={profileImg}
-              alt="user"
-              className={styles.profileImage}
-            />
+            <img src={profileImg} alt="user" className={styles.profileImage} />
             <span>{userName}</span>
           </Link>
         )}
@@ -93,10 +85,7 @@ const ProductCard = ({ product }) => {
           {product.description?.slice(0, 20)}...
         </p>
 
-        <Link
-          to={`/product/${product._id}`}
-          className={styles.readMore}
-        >
+        <Link to={`/product/${product._id}`} className={styles.readMore}>
           Read more..
         </Link>
       </div>

@@ -4,6 +4,7 @@ import styles from "./EditProfile.module.css";
 import { useNavigate } from "react-router";
 import { FaPen } from "react-icons/fa";
 import { API_BASE_URL } from "../../../config/apiBase";
+import { imgSrc } from "../../../utils/imgSrc";
 
 const EditProfile = () => {
   const [formData, setFormData] = useState({
@@ -39,10 +40,10 @@ const EditProfile = () => {
 
         setPreview({
           profileImage: user.profileImage
-            ? `${API_BASE_URL}/uploads/${user.profileImage}`
+            ? imgSrc(user.profileImage, API_BASE_URL)
             : null,
           bannerImage: user.bannerImage
-            ? `${API_BASE_URL}/uploads/${user.bannerImage}`
+            ? imgSrc(user.bannerImage, API_BASE_URL)
             : null,
         });
       } catch (err) {

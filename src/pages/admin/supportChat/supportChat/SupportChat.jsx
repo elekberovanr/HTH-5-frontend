@@ -4,8 +4,12 @@ import { FaImage, FaPaperPlane, FaTimes } from "react-icons/fa";
 import API from "../../../../services/api";
 import { io } from "socket.io-client";
 import { useSelector, useDispatch } from "react-redux";
-import { incrementUnread, setSelectedChat } from "../../../../redux/reducers/chatSlice";
+import {
+  incrementUnread,
+  setSelectedChat,
+} from "../../../../redux/reducers/chatSlice";
 import { API_BASE_URL } from "../../../../config/apiBase";
+import { imgSrc } from "../../../../utils/imgSrc";
 
 const SupportChat = ({ selectedUser, onBack }) => {
   const admin = useSelector((state) => state.user.user);
@@ -19,7 +23,6 @@ const SupportChat = ({ selectedUser, onBack }) => {
 
   const bottomRef = useRef();
 
-  // ✅ socket connect (support namespace)
   useEffect(() => {
     const s = io(`${API_BASE_URL}/support`, {
       withCredentials: true,
@@ -33,7 +36,6 @@ const SupportChat = ({ selectedUser, onBack }) => {
     };
   }, []);
 
-  // ✅ fetch + socket events
   useEffect(() => {
     if (!selectedUser?._id || !admin?._id || !socket) return;
 
@@ -69,7 +71,6 @@ const SupportChat = ({ selectedUser, onBack }) => {
     };
   }, [selectedUser, admin, socket]);
 
-  // ✅ mark as read
   useEffect(() => {
     if (!selectedUser?._id || !admin?._id) return;
 
@@ -126,7 +127,7 @@ const SupportChat = ({ selectedUser, onBack }) => {
   }, [messages]);
 
   const selectedUserImg = selectedUser?.profileImage
-    ? `${API_BASE_URL}/uploads/${selectedUser.profileImage}`
+    ? imgSrc(selectedUser.profileImage, API_BASE_URL)
     : "/default-avatar.png";
 
   return (
@@ -136,11 +137,7 @@ const SupportChat = ({ selectedUser, onBack }) => {
           ←
         </button>
 
-        <img
-          src={selectedUserImg}
-          alt="user"
-          className={styles.profileImage}
-        />
+        <img src={selectedUserImg} alt="user" className={styles.profileImage} />
 
         <div>
           <div className={styles.username}>{selectedUser?.name}</div>
@@ -150,28 +147,39 @@ const SupportChat = ({ selectedUser, onBack }) => {
 
       <div className={styles.messageArea}>
         {messages.map((m, i) => {
-          const isAdmin = m.sender === admin?._id || m.sender?._id === admin?._id;
+          const isAdmin =
+            m.sender === admin?._id || m.sender?._id === admin?._id;
+
           const sender = m.sender || {};
           const senderImage = sender.profileImage
-            ? `${API_BASE_URL}/uploads/${sender.profileImage}`
+            ? imgSrc(sender.profileImage, API_BASE_URL)
             : "/default-avatar.png";
+
+          const imgs =
+            Array.isArray(m.image) ? m.image : m.image ? [m.image] : [];
 
           return (
             <div
               key={i}
-              className={`${styles.messageRow} ${isAdmin ? styles.user : styles.admin}`}
+              className={`${styles.messageRow} ${
+                isAdmin ? styles.user : styles.admin
+              }`}
             >
               {!isAdmin && (
-                <img src={senderImage} alt="avatar" className={styles.avatar} />
+                <img
+                  src={senderImage}
+                  alt="avatar"
+                  className={styles.avatar}
+                />
               )}
 
               <div className={styles.bubbleWrapper}>
-                {Array.isArray(m.image) && m.image.length > 0 && (
+                {imgs.length > 0 && (
                   <div className={styles.imageGroup}>
-                    {m.image.map((img, index) => (
+                    {imgs.map((img, index) => (
                       <img
                         key={index}
-                        src={`${API_BASE_URL}/uploads/${img}`}
+                        src={imgSrc(img, API_BASE_URL)}
                         alt="media"
                         className={styles.messageImage}
                       />
@@ -191,7 +199,7 @@ const SupportChat = ({ selectedUser, onBack }) => {
                   </div>
                 )}
 
-                {!m.content && m.image?.length > 0 && (
+                {!m.content && imgs.length > 0 && (
                   <span className={styles.time}>
                     {new Date(m.createdAt).toLocaleTimeString([], {
                       hour: "2-digit",

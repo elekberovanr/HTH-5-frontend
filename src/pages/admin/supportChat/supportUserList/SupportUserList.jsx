@@ -5,10 +5,13 @@ import { useSelector, useDispatch } from "react-redux";
 import { setSelectedChat } from "../../../../redux/reducers/chatSlice";
 import defaultAvatar from "../../../../assets/default-user.png";
 import { API_BASE_URL } from "../../../../config/apiBase";
+import { imgSrc } from "../../../../utils/imgSrc";
 
 const SupportUserList = ({ onSelectUser, selectedUser }) => {
   const [users, setUsers] = useState([]);
-  const globalNotifications = useSelector((state) => state.chat.notifications || {});
+  const globalNotifications = useSelector(
+    (state) => state.chat.notifications || {}
+  );
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -16,7 +19,6 @@ const SupportUserList = ({ onSelectUser, selectedUser }) => {
       try {
         const res = await API.get("/support/admin");
 
-        // Sıralama: ən son mesaja görə
         const sorted = (res.data || []).sort((a, b) => {
           const aTime = new Date(a.lastMessage?.createdAt || 0);
           const bTime = new Date(b.lastMessage?.createdAt || 0);
@@ -50,9 +52,7 @@ const SupportUserList = ({ onSelectUser, selectedUser }) => {
           const unreadCount = globalNotifications[user._id] || 0;
 
           const imageSrc = user.profileImage
-            ? user.profileImage.startsWith("http")
-              ? user.profileImage
-              : `${API_BASE_URL}/uploads/${user.profileImage}`
+            ? imgSrc(user.profileImage, API_BASE_URL)
             : defaultAvatar;
 
           return (

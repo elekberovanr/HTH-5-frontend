@@ -15,6 +15,7 @@ import {
   incrementUnread,
 } from "../../../redux/reducers/chatSlice";
 import { API_BASE_URL } from "../../../config/apiBase";
+import { imgSrc } from "../../../utils/imgSrc";
 
 const ChatRoom = () => {
   const { chatId } = useParams();
@@ -32,7 +33,6 @@ const ChatRoom = () => {
 
   const recipient = selectedChat?.participants?.find((p) => p._id !== user?._id);
 
-  // ✅ socket connect
   useEffect(() => {
     const s = io(API_BASE_URL, {
       withCredentials: true,
@@ -45,19 +45,16 @@ const ChatRoom = () => {
     };
   }, []);
 
-  // ✅ fetch chat list
   useEffect(() => {
-    if (user?. _id) dispatch(fetchChats(user._id));
+    if (user?._id) dispatch(fetchChats(user._id));
   }, [dispatch, user?._id]);
 
-  // ✅ set selected chat by route
   useEffect(() => {
     if (!chatId || !chatList?.length) return;
     const found = chatList.find((c) => c._id === chatId);
     if (found) dispatch(setSelectedChat(found));
   }, [chatId, chatList, dispatch]);
 
-  // ✅ mark read when open
   useEffect(() => {
     const markRead = async () => {
       if (!selectedChat?._id || !user?._id) return;
@@ -71,7 +68,6 @@ const ChatRoom = () => {
     markRead();
   }, [selectedChat?._id, user?._id, dispatch]);
 
-  // ✅ load messages + join room
   useEffect(() => {
     if (!selectedChat?._id) return;
 
@@ -94,7 +90,6 @@ const ChatRoom = () => {
     }
   }, [selectedChat?._id, socket]);
 
-  // ✅ realtime message listener
   useEffect(() => {
     if (!socket || !user?._id) return;
 
@@ -115,7 +110,6 @@ const ChatRoom = () => {
     return () => socket.off("newMessage", onNewMessage);
   }, [socket, user?._id, selectedChat?._id, dispatch]);
 
-  // ✅ auto scroll
   useEffect(() => {
     chatBoxRef.current?.scrollTo(0, chatBoxRef.current.scrollHeight);
   }, [messages]);
@@ -157,7 +151,7 @@ const ChatRoom = () => {
   }
 
   const recipientAvatar = recipient?.profileImage
-    ? `${API_BASE_URL}/uploads/${recipient.profileImage}`
+    ? imgSrc(recipient.profileImage, API_BASE_URL)
     : `${API_BASE_URL}/uploads/default.png`;
 
   return (
@@ -185,16 +179,19 @@ const ChatRoom = () => {
           </div>
         ) : (
           (messages || []).map((msg) => {
-            const isMine = msg?.sender?._id === user?._id || msg?.sender === user?._id;
+            const isMine =
+              msg?.sender?._id === user?._id || msg?.sender === user?._id;
 
             const msgImageSrc = msg.image
-              ? `${API_BASE_URL}/uploads/${msg.image}`
+              ? imgSrc(msg.image, API_BASE_URL)
               : null;
 
             return (
               <div
                 key={msg._id}
-                className={`${styles.messageRow} ${isMine ? styles.mine : styles.theirs}`}
+                className={`${styles.messageRow} ${
+                  isMine ? styles.mine : styles.theirs
+                }`}
               >
                 <div className={styles.bubbleContainer}>
                   <div className={styles.bubble}>
@@ -208,7 +205,9 @@ const ChatRoom = () => {
                       />
                     )}
 
-                    <span className={styles.time}>{formatTime(msg.createdAt)}</span>
+                    <span className={styles.time}>
+                      {formatTime(msg.createdAt)}
+                    </span>
                   </div>
                 </div>
               </div>

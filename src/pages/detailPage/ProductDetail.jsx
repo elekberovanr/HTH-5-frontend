@@ -8,6 +8,7 @@ import { fetchChats, setSelectedChat } from "../../redux/reducers/chatSlice";
 import { BiMessage } from "react-icons/bi";
 import CommentBox from "../comment/CommentBox";
 import { API_BASE_URL } from "../../config/apiBase";
+import { imgSrc } from "../../utils/imgSrc";
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -81,11 +82,11 @@ const ProductDetail = () => {
   if (!product) return <p>Loading...</p>;
 
   const mainImgSrc = selectedImage
-    ? `${API_BASE_URL}/uploads/${selectedImage}`
+    ? imgSrc(selectedImage, API_BASE_URL)
     : "/no-image.png";
 
   const ownerAvatar = product.user?.profileImage
-    ? `${API_BASE_URL}/uploads/${product.user.profileImage}`
+    ? imgSrc(product.user.profileImage, API_BASE_URL)
     : null;
 
   return (
@@ -97,7 +98,7 @@ const ProductDetail = () => {
           {product.images?.map((img, i) => (
             <img
               key={i}
-              src={`${API_BASE_URL}/uploads/${img}`}
+              src={imgSrc(img, API_BASE_URL)}
               alt=""
               className={styles.thumbnail}
               onClick={() => setSelectedImage(img)}

@@ -11,6 +11,7 @@ import { FaHome } from "react-icons/fa";
 import logo2 from "../../assets/logo2.png";
 
 import { API_BASE_URL } from "../../config/apiBase";
+import { imgSrc } from "../../utils/imgSrc";
 
 function Header() {
   const dispatch = useDispatch();
@@ -41,7 +42,7 @@ function Header() {
   if (isAdminPage) return null;
 
   const avatarSrc = user?.profileImage
-    ? `${API_BASE_URL}/uploads/${user.profileImage}`
+    ? imgSrc(user.profileImage, API_BASE_URL)
     : null;
 
   return (

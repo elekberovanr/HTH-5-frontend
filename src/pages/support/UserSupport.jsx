@@ -7,6 +7,7 @@ import { FaPaperPlane, FaImage, FaTimes } from "react-icons/fa";
 import adminImage from "../../assets/admin-default.png";
 import { resetUnread } from "../../redux/reducers/chatSlice";
 import { API_BASE_URL } from "../../config/apiBase";
+import { imgSrc } from "../../utils/imgSrc";
 
 const UserSupport = () => {
   const user = useSelector((state) => state.user.user);
@@ -20,7 +21,6 @@ const UserSupport = () => {
   const bottomRef = useRef();
   const dispatch = useDispatch();
 
-  // ✅ socket connect (support namespace)
   useEffect(() => {
     const s = io(`${API_BASE_URL}/support`, {
       withCredentials: true,
@@ -121,13 +121,15 @@ const UserSupport = () => {
           const isMine = m.sender?._id === user._id || m.sender === user._id;
           const isAdmin = !isMine;
 
-          const myAvatar = m.sender?.profileImage
-            ? m.sender.profileImage.startsWith("http")
-              ? m.sender.profileImage
-              : `${API_BASE_URL}/uploads/${m.sender.profileImage}`
+          const sender = m.sender || {};
+          const myAvatar = sender.profileImage
+            ? imgSrc(sender.profileImage, API_BASE_URL)
             : `${API_BASE_URL}/uploads/default-user.png`;
 
           const profileImg = isAdmin ? adminImage : myAvatar;
+
+          const imgs =
+            Array.isArray(m.image) ? m.image : m.image ? [m.image] : [];
 
           return (
             <div
@@ -135,17 +137,21 @@ const UserSupport = () => {
               className={isMine ? styles.userMessage : styles.adminMessage}
             >
               {!isMine && (
-                <img src={profileImg} alt="avatar" className={styles.profileImage} />
+                <img
+                  src={profileImg}
+                  alt="avatar"
+                  className={styles.profileImage}
+                />
               )}
 
               <div className={styles.bubbleBlock}>
-                {Array.isArray(m.image) && m.image.length > 0 && (
+                {imgs.length > 0 && (
                   <div className={styles.imageGroup}>
-                    {m.image.map((img, index) => (
+                    {imgs.map((img, index) => (
                       <img
                         key={index}
                         className={styles.image}
-                        src={`${API_BASE_URL}/uploads/${img}`}
+                        src={imgSrc(img, API_BASE_URL)}
                         alt="media"
                       />
                     ))}
@@ -163,7 +169,11 @@ const UserSupport = () => {
               </div>
 
               {isMine && (
-                <img src={profileImg} alt="avatar" className={styles.profileImage} />
+                <img
+                  src={profileImg}
+                  alt="avatar"
+                  className={styles.profileImage}
+                />
               )}
             </div>
           );

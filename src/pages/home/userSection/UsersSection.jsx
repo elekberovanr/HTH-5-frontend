@@ -3,6 +3,7 @@ import styles from "./UsersSection.module.css";
 import API from "../../../services/api";
 import { Link } from "react-router-dom";
 import { API_BASE_URL } from "../../../config/apiBase";
+import { imgSrc } from "../../../utils/imgSrc";
 
 const UsersSection = () => {
   const [users, setUsers] = useState([]);
@@ -26,7 +27,7 @@ const UsersSection = () => {
       <div className={styles.scrollContainer}>
         {users.map((user) => {
           const avatarSrc = user.profileImage
-            ? `${API_BASE_URL}/uploads/${user.profileImage}`
+            ? imgSrc(user.profileImage, API_BASE_URL)
             : `${API_BASE_URL}/uploads/default-user.png`;
 
           return (

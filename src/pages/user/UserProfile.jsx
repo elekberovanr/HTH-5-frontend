@@ -8,6 +8,7 @@ import { fetchChats, setSelectedChat } from "../../redux/reducers/chatSlice";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
 import { BiCake, BiLocationPlus } from "react-icons/bi";
 import { API_BASE_URL } from "../../config/apiBase";
+import { imgSrc } from "../../utils/imgSrc";
 
 const UserProfile = () => {
   const { id } = useParams();
@@ -62,11 +63,11 @@ const UserProfile = () => {
   if (!profileUser) return <LoadingSpinner />;
 
   const bannerSrc = profileUser.bannerImage
-    ? `${API_BASE_URL}/uploads/${profileUser.bannerImage}`
+    ? imgSrc(profileUser.bannerImage, API_BASE_URL)
     : `${API_BASE_URL}/uploads/default-banner.jpg`;
 
   const avatarSrc = profileUser.profileImage
-    ? `${API_BASE_URL}/uploads/${profileUser.profileImage}`
+    ? imgSrc(profileUser.profileImage, API_BASE_URL)
     : `${API_BASE_URL}/uploads/default-user.png`;
 
   return (

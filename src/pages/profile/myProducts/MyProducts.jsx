@@ -10,6 +10,7 @@ import Delete from "../../../components/delete/Delete";
 import { useSelector } from "react-redux";
 import LoadingSpinner from "../../../components/common/LoadingSpinner";
 import { API_BASE_URL } from "../../../config/apiBase";
+import { imgSrc as toImgSrc } from "../../../utils/imgSrc";
 
 const MyProducts = () => {
   const [products, setProducts] = useState([]);
@@ -71,8 +72,9 @@ const MyProducts = () => {
           ) : (
             products.map((product) => {
               const firstImg = product.images?.[0] || product.image;
+
               const imgSrc = firstImg
-                ? `${API_BASE_URL}/uploads/${firstImg}`
+                ? toImgSrc(firstImg, API_BASE_URL)
                 : "/no-image.png";
 
               return (
@@ -131,7 +133,11 @@ const MyProducts = () => {
         </div>
       )}
 
-      <Delete isOpen={showDialog} onConfirm={confirmDelete} onCancel={cancelDelete} />
+      <Delete
+        isOpen={showDialog}
+        onConfirm={confirmDelete}
+        onCancel={cancelDelete}
+      />
       <ToastContainer position="top-center" />
     </div>
   );

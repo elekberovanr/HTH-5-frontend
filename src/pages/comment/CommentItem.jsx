@@ -5,6 +5,7 @@ import { FaReply, FaTrash } from "react-icons/fa";
 import API from "../../services/api";
 import { useSelector } from "react-redux";
 import { API_BASE_URL } from "../../config/apiBase";
+import { imgSrc } from "../../utils/imgSrc";
 
 const CommentItem = ({
   comment,
@@ -20,7 +21,7 @@ const CommentItem = ({
   const username = comment.userId?.name || "Unknown";
 
   const avatarSrc = comment.userId?.profileImage
-    ? `${API_BASE_URL}/uploads/${comment.userId.profileImage}`
+    ? imgSrc(comment.userId.profileImage, API_BASE_URL)
     : "/default-avatar.png";
 
   const handleDelete = async () => {

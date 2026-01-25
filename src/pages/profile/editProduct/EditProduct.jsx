@@ -5,6 +5,7 @@ import styles from "./EditProduct.module.css";
 import { FiUpload, FiSave } from "react-icons/fi";
 import { useSelector } from "react-redux";
 import { API_BASE_URL } from "../../../config/apiBase";
+import { imgSrc } from "../../../utils/imgSrc";
 
 const EditProduct = () => {
   const { id } = useParams();
@@ -29,7 +30,8 @@ const EditProduct = () => {
         setForm({
           title: productRes.data.title || "",
           description: productRes.data.description || "",
-          category: productRes.data.category?._id || productRes.data.category || "",
+          category:
+            productRes.data.category?._id || productRes.data.category || "",
         });
         setExistingImages(productRes.data.images || []);
       } catch (err) {
@@ -38,7 +40,9 @@ const EditProduct = () => {
 
       try {
         const catRes = await API.get("/categories");
-        const data = Array.isArray(catRes.data) ? catRes.data : catRes.data.categories || [];
+        const data = Array.isArray(catRes.data)
+          ? catRes.data
+          : catRes.data.categories || [];
         setCategories(data);
       } catch (err) {
         console.error("Failed to fetch categories:", err);
@@ -128,7 +132,7 @@ const EditProduct = () => {
           {existingImages.map((img, idx) => (
             <div key={idx} className={styles.card}>
               <img
-                src={`${API_BASE_URL}/uploads/${img}`}
+                src={imgSrc(img, API_BASE_URL)}
                 alt="existing"
                 className={styles.previewImg}
               />
