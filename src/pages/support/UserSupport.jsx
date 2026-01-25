@@ -4,7 +4,6 @@ import API from "../../services/api";
 import { useSelector, useDispatch } from "react-redux";
 import { io } from "socket.io-client";
 import { FaPaperPlane, FaImage, FaTimes } from "react-icons/fa";
-import adminImage from "../../assets/admin-default.png";
 import { resetUnread } from "../../redux/reducers/chatSlice";
 import { API_BASE_URL } from "../../config/apiBase";
 import { imgSrc } from "../../utils/imgSrc";
@@ -111,7 +110,7 @@ const UserSupport = () => {
     <div className={styles.container}>
       <div className={styles.header}>
         <div className={styles.adminInfo}>
-          <img className={styles.avatar} src={adminImage} alt="Admin" />
+          <img className={styles.avatar} src="/admin-default.png" alt="Admin" />
           <span className={styles.name}>Admin Support</span>
         </div>
       </div>
@@ -124,7 +123,7 @@ const UserSupport = () => {
           const sender = m.sender || {};
           const myAvatar = sender.profileImage
             ? imgSrc(sender.profileImage, API_BASE_URL)
-            : `${API_BASE_URL}/uploads/default-user.png`;
+            : `${API_BASE_URL}/default-user.png`;
 
           const profileImg = isAdmin ? adminImage : myAvatar;
 

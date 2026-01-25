@@ -69,7 +69,7 @@ const Profile = () => {
 
   const getImageUrl = (img, type = "profile") => {
     if (!img) {
-      return type === "banner" ? "/default-banner.jpg" : "/assets/default-profile.jpg";
+      return type === "banner" ? "/default-banner.jpg" : "/default-user.png";
     }
     return imgSrc(img, API_BASE_URL);
   };

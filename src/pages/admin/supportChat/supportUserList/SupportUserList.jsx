@@ -3,7 +3,6 @@ import styles from "./SupportUserList.module.css";
 import API from "../../../../services/api";
 import { useSelector, useDispatch } from "react-redux";
 import { setSelectedChat } from "../../../../redux/reducers/chatSlice";
-import defaultAvatar from "../../../../assets/default-user.png";
 import { API_BASE_URL } from "../../../../config/apiBase";
 import { imgSrc } from "../../../../utils/imgSrc";
 

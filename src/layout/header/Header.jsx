@@ -7,7 +7,7 @@ import styles from "./Header.module.css";
 import { FiMenu, FiX, FiSun, FiMoon } from "react-icons/fi";
 import { BiAddToQueue, BiMessage, BiMoney } from "react-icons/bi";
 import { HiSearch } from "react-icons/hi";
-import { FaHome } from "react-icons/fa";
+import { FaHome, FaPlus, FaUser } from "react-icons/fa";
 import logo2 from "../../assets/logo2.png";
 
 import { API_BASE_URL } from "../../config/apiBase";
@@ -84,14 +84,14 @@ function Header() {
           {user ? (
             <>
               <Link to="/add" className={styles.icon}>
-                <BiAddToQueue />
+                <FaPlus />
               </Link>
 
               <Link to="/profile" className={styles.profileLink}>
                 {avatarSrc ? (
                   <img src={avatarSrc} alt="P" className={styles.avatar} />
                 ) : (
-                  <FaHome className={styles.icon} />
+                  <FaUser className={styles.icon} />
                 )}
               </Link>
             </>

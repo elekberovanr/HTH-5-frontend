@@ -75,7 +75,7 @@ const CommentBox = ({ productId }) => {
       <div className={styles.inputRow}>
         <input
           type="text"
-          placeholder={replyTo ? `@${replyTo.userId?.name}` : 'Şərhinizi yazın...'}
+          placeholder={replyTo ? `@${replyTo.userId?.name}` : 'Add comments..'}
           value={text}
           onChange={(e) => setText(e.target.value)}
           className={styles.input}
