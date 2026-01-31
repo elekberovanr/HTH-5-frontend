@@ -68,9 +68,6 @@ function Header() {
               )}
               Chat
             </Link>
-            <Link to="/donation" className={styles.link}>
-              <BiMoney /> Donation
-            </Link>
             <button
               onClick={() => dispatch(toggleTheme())}
               className={styles.themeToggle}

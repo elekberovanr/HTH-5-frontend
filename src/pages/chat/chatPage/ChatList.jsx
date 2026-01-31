@@ -10,6 +10,7 @@ import {
 import API from "../../../services/api";
 import { io } from "socket.io-client";
 import { API_BASE_URL } from "../../../config/apiBase";
+import { imgSrc } from "../../../utils/imgSrc";
 
 const ChatList = () => {
   const dispatch = useDispatch();
@@ -19,12 +20,13 @@ const ChatList = () => {
 
   const [socket, setSocket] = useState(null);
 
-  // ✅ socket connect (component içində)
+  // ✅ socket connect
   useEffect(() => {
     const s = io(API_BASE_URL, {
       withCredentials: true,
       transports: ["websocket"],
     });
+
     setSocket(s);
 
     return () => {
@@ -43,15 +45,21 @@ const ChatList = () => {
 
     const onNewMessage = (msg) => {
       if (!msg?.chat) return;
+
+      // öz mesajını unread etmə
       if (msg.sender?._id === user._id || msg.sender === user._id) return;
 
-      // msg.chat bəzən id string olur, bəzən object ola bilər
+      // msg.chat bəzən id string, bəzən object
       const chatId = typeof msg.chat === "string" ? msg.chat : msg.chat?._id;
 
+      // seçilməyibsə unread artır
       if (chatId && selectedChatId !== chatId) {
+        // səndə reducer necə yazılıb bilmirəm deyə SAFE göndərirəm:
+        // əgər incrementUnread(chatId) işləyirdisə, saxla:
         dispatch(incrementUnread(chatId));
       }
 
+      // list yenilə (latestMessage üçün)
       dispatch(fetchChats(user._id));
     };
 
@@ -72,37 +80,45 @@ const ChatList = () => {
   };
 
   return (
-    <div className={`${styles.chatlist} ${theme === "dark" ? "dark" : ""}`}>
+    <div className={`${styles.chatlist} ${theme === "dark" ? styles.dark : ""}`}>
       <h3 className={styles.title}>Chats</h3>
 
       {(chatList || []).map((chat) => {
         const otherUser = chat.participants?.find((p) => p._id !== user?._id);
         if (!otherUser) return null;
 
+        // ✅ FIX: imgSrc istifadə et (S3 / uploads / full URL hamısını düz edir)
         const avatarSrc = otherUser.profileImage
-          ? `${API_BASE_URL}/uploads/${otherUser.profileImage}`
+          ? imgSrc(otherUser.profileImage, API_BASE_URL)
           : `${API_BASE_URL}/uploads/default.png`;
+
+        const lastText = chat.latestMessage?.content
+          ? chat.latestMessage.content
+          : chat.latestMessage?.image
+            ? "📷 Photo"
+            : "No messages yet";
 
         return (
           <div
             key={chat._id}
-            className={`${styles.chatItem} ${
-              chat._id === selectedChatId ? styles.active : ""
-            }`}
+            className={`${styles.chatItem} ${chat._id === selectedChatId ? styles.active : ""
+              }`}
             onClick={() => handleChatClick(chat)}
           >
             <img
               src={avatarSrc}
-              alt={otherUser.username || otherUser.name}
+              alt={otherUser.username || otherUser.name || "User"}
               className={styles.avatar}
+              onError={(e) => {
+                e.currentTarget.src = `${API_BASE_URL}/uploads/default.png`;
+              }}
             />
 
             <div className={styles.chatInfo}>
-              <p className={styles.name}>{otherUser.username || otherUser.name}</p>
-              <p className={styles.lastMsg}>
-                {chat.latestMessage?.content ||
-                  (chat.latestMessage?.image ? "📷 Photo" : "No messages yet")}
+              <p className={styles.name}>
+                {otherUser.username || otherUser.name}
               </p>
+              <p className={styles.lastMsg}>{lastText}</p>
             </div>
 
             {chat.unreadCount > 0 && (

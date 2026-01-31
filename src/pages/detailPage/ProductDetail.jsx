@@ -108,13 +108,16 @@ const ProductDetail = () => {
       </div>
 
       <div className={styles.infoSection}>
-        <Link to={`/user/${product.user}`}>
+        <Link to={`/user/${product.user?._id}`} className={styles.ownerLink}>
           <div className={styles.owner}>
             {ownerAvatar ? (
               <img
                 src={ownerAvatar}
                 alt="Profil"
                 className={styles.profileImage}
+                onError={(e) => {
+                  e.currentTarget.src = `${API_BASE_URL}/uploads/default.png`;
+                }}
               />
             ) : (
               <div className={styles.profileImage}>❓</div>
@@ -122,6 +125,7 @@ const ProductDetail = () => {
             <span className={styles.name}>{product.user?.name}</span>
           </div>
         </Link>
+
 
         <div className={styles.textBlock}>
           <h2 className={styles.title}>{product.title}</h2>

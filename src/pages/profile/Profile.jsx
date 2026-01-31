@@ -149,19 +149,11 @@ const Profile = () => {
         >
           <FaHeart /> <span>Favorites</span>
         </button>
-
-        <button
-          className={activeTab === "donations" ? styles.active : ""}
-          onClick={() => setActiveTab("donations")}
-        >
-          <BiDonateHeart /> <span>Donations</span>
-        </button>
       </div>
 
       <div className={styles.tabContent}>
         {activeTab === "products" && <MyProducts />}
         {activeTab === "favorites" && <Favorites />}
-        {activeTab === "donations" && <Donations />}
       </div>
     </div>
   );

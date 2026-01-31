@@ -34,17 +34,23 @@
   justify-content: center;
   gap: 16px;
   padding: 1rem;
-  width: 100%;
+  width: 90%;
   box-sizing: border-box;
   background-color: var(--card-bg);
 }
 
 .gridContainer > * {
-  flex: 0 1 calc(30% - 1rem);
+  flex: 0 1 calc(25% - 1rem);
   background-color: var(--card-bg);
   color: var(--text-color);
   border-radius: 12px;
   box-sizing: border-box;
+}
+
+@media screen and (max-width: 1300px) {
+  .gridContainer > * {
+    flex: 0 1 calc(33.33% - 1rem);
+  }
 }
 
 @media screen and (max-width: 768px) {
@@ -53,7 +59,7 @@
   }
 }
 
-@media screen and (max-width: 360px) {
+@media screen and (max-width: 400px) {
   .gridContainer > * {
     flex: 0 1 100%;
   }
