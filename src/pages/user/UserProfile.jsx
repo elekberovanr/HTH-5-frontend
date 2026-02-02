@@ -9,6 +9,8 @@ import LoadingSpinner from "../../components/common/LoadingSpinner";
 import { BiCake, BiLocationPlus } from "react-icons/bi";
 import { API_BASE_URL } from "../../config/apiBase";
 import { imgSrc } from "../../utils/imgSrc";
+import { CiLocationArrow1 } from "react-icons/ci";
+import { BsGenderAmbiguous } from "react-icons/bs";
 
 const UserProfile = () => {
   const { id } = useParams();
@@ -85,11 +87,11 @@ const UserProfile = () => {
 
           {profileUser.city && (
             <p>
-              <BiLocationPlus /> {profileUser.city}
+              <CiLocationArrow1/> {profileUser.city}
             </p>
           )}
 
-          {profileUser.gender && <p>⚧ {profileUser.gender}</p>}
+          {profileUser.gender && <p><BsGenderAmbiguous/> {profileUser.gender}</p>}
 
           {profileUser.birthday && (
             <p>
